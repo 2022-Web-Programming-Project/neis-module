@@ -1,21 +1,17 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { Transport } from '@nestjs/microservices/enums';
+import { MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import { NEIS_PACKAGE_NAME } from './neis/neis.proto';
+import { grpcClientOptions } from './grpc.options';
 
 export const serviceHost = 'localhost';
 export const servicePort = 10001;
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice(AppModule, {
-    transport: Transport.GRPC,
-    options: {
-      url: `${serviceHost}:${servicePort}`,
-      package: NEIS_PACKAGE_NAME,
-      protoPath: 'src/neis/neis.proto',
-    },
-  });
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    grpcClientOptions,
+  );
   await app.listen();
 
   Logger.log(

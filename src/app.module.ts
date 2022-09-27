@@ -1,5 +1,7 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GrpcReflectionModule } from 'nestjs-grpc-reflection';
+import { grpcClientOptions } from './grpc.options';
 import { ScheduleModule } from './schedule/schedule.module';
 import redisStore from 'cache-manager-redis-store';
 
@@ -9,15 +11,7 @@ import redisStore from 'cache-manager-redis-store';
       isGlobal: true,
       envFilePath: [`.env`],
     }),
-    CacheModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        store: redisStore,
-        host: configService.get('REDIS_HOST'),
-        port: configService.get('REDIS_PORT'),
-      }),
-      inject: [ConfigService],
-    }),
+    GrpcReflectionModule.register(grpcClientOptions),
     ScheduleModule,
   ],
   controllers: [],

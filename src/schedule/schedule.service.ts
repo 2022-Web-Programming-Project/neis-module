@@ -8,6 +8,6 @@ export class ScheduleService {
   async Hello() {
     const value = await this.cacheManager.get<number>('Hello');
     await this.cacheManager.set<number>('Hello', new Date().getTime());
-    return value;
+    return value || 0;
   }
 }

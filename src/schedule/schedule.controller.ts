@@ -5,7 +5,7 @@ import {
   GetHelloResponse,
   ScheduleServiceController,
   ScheduleServiceControllerMethods,
-} from '../neis/neis.proto';
+} from '../grpc/neis.proto';
 
 @Controller()
 @ScheduleServiceControllerMethods()
