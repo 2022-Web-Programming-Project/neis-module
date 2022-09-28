@@ -13,3 +13,17 @@ message GetHelloRequest {
 message GetHelloResponse {
     string message = 1;
 }
+
+service LunchService {
+    rpc GetLunchOfDay(GetLunchOfDayRequest) returns (GetLunchOfDayResponse) {}
+}
+
+message GetLunchOfDayRequest {
+    string school_district_code = 1;
+    string school_code = 2;
+    string date = 3;
+}
+
+message GetLunchOfDayResponse {
+    string lunch = 1;
+}
