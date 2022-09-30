@@ -6,19 +6,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as ms from 'ms';
 
 @Module({
-  imports: [
-    CacheModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        store: redisStore,
-        host: configService.get<string>('REDIS_HOST'),
-        port: configService.get<number>('REDIS_PORT'),
-        ttl: ms(configService.get<number>('CACHE_TTL')),
-      }),
-      inject: [ConfigService],
-    }),
-  ],
+  imports: [],
   controllers: [ScheduleController],
   providers: [ScheduleService],
+  exports: [ScheduleService],
 })
 export class ScheduleModule {}

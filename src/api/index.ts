@@ -30,3 +30,8 @@ export default class OpenAPI {
     return this._client.get(path, { params, ...options });
   }
 }
+
+export type APIWrapper<T> = {
+  totalCount: number;
+  row: T[];
+};

@@ -2,11 +2,12 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import { DateTime } from 'luxon';
-import OpenAPI from 'src/api';
+import OpenAPI, { APIWrapper } from 'src/api';
 import DateWrapper, { DaysFromRange } from 'src/date';
 import * as ms from 'ms';
 import { Lunch } from 'src/grpc/neis.proto';
 import { getCacheState } from 'src/cache';
+import { OpenAPIInterface } from 'neis';
 
 @Injectable()
 export class LunchService {
@@ -30,7 +31,7 @@ export class LunchService {
     mealCode?: string;
     date?: DateWrapper;
   }): Promise<Lunch[]> {
-    const res = await this.$api
+    const res: APIWrapper<OpenAPIInterface.LunchResponse> = await this.$api
       .get('/mealServiceDietInfo', {
         ATPT_OFCDC_SC_CODE: schoolDistrictCode,
         SD_SCHUL_CODE: schoolCode,
@@ -38,22 +39,29 @@ export class LunchService {
         ...date.toObject('MLSV_YMD', 'MLSV_FROM_YMD', 'MLSV_TO_YMD'),
       })
       .then((x) => x.data)
-      .then((x) => x.mealServiceDietInfo[1].row);
-    return res.map((x) => ({
-      atptOfcdcScCode: x.ATPT_OFCDC_SC_CODE,
-      atptOfcdcScNm: x.ATPT_OFCDC_SC_NM,
-      sdSchulCode: x.SD_SCHUL_CODE,
-      schulNm: x.SCHUL_NM,
-      mmealScCode: x.MMEAL_SC_CODE,
-      mmealScNm: x.MMEAL_SC_NM,
-      mlsvYmd: x.MLSV_YMD,
-      mlsvFgr: x.MLSV_FGR,
-      ddishNm: x.DDISH_NM,
-      orplcInfo: x.ORPLC_INFO,
-      calInfo: x.CAL_INFO,
-      ntrInfo: x.NTR_INFO,
-      mlsvFromYmd: x.MLSV_FROM_YMD,
-      mlsvToYmd: x.MLSV_TO_YMD,
+      .then((x) => ({
+        totalCount: x.mealServiceDietInfo[0].head[0].list_total_count,
+        row: x.mealServiceDietInfo[1].row,
+      }));
+    return res.row.map((x) => ({
+      schoolDistrictCode: x.ATPT_OFCDC_SC_CODE,
+      schoolDistrictName: x.ATPT_OFCDC_SC_NM,
+      schoolCode: x.SD_SCHUL_CODE,
+      schoolName: x.SCHUL_NM,
+      mealCode: x.MMEAL_SC_CODE,
+      mealName: x.MMEAL_SC_NM,
+      date: DateTime.fromFormat(x.MLSV_YMD, 'yyyyMMdd').toFormat('yyyy-MM-dd'),
+      mealCount: Number.parseInt(x.MLSV_FGR),
+      dishName: x.DDISH_NM,
+      originInfo: x.ORPLC_INFO,
+      calorieInfo: x.CAL_INFO,
+      nutritionInfo: x.NTR_INFO,
+      mealFromDate: DateTime.fromFormat(x.MLSV_FROM_YMD, 'yyyyMMdd').toFormat(
+        'yyyy-MM-dd',
+      ),
+      mealToDate: DateTime.fromFormat(x.MLSV_TO_YMD, 'yyyyMMdd').toFormat(
+        'yyyy-MM-dd',
+      ),
     }));
   }
 
@@ -73,7 +81,7 @@ export class LunchService {
 
   async setLunch(date: string, lunch: Lunch): Promise<void> {
     await this.cacheManager.set(
-      `lunch:${lunch.atptOfcdcScCode}:${lunch.sdSchulCode}:${date}`,
+      `lunch:${lunch.schoolDistrictCode}:${lunch.schoolCode}:${date}`,
       lunch,
       {
         ttl: ms(this.config.get<string>('LUNCH_CACHE_TTL')),
@@ -116,10 +124,7 @@ export class LunchService {
       date: new DateWrapper(dateValue, dateValue.plus({ week: 1 })),
     });
     for (const lunch of lunches) {
-      await this.setLunch(
-        DateTime.fromFormat(lunch.mlsvYmd, 'yyyyMMdd').toFormat('yyyy-MM-dd'),
-        lunch,
-      );
+      await this.setLunch(lunch.date, lunch);
     }
     return lunches;
   }
