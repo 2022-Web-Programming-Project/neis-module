@@ -4,6 +4,7 @@ import { GrpcReflectionModule } from 'nestjs-grpc-reflection';
 import { grpcClientOptions } from './grpc.options';
 import { ScheduleModule } from './schedule/schedule.module';
 import { LunchModule } from './lunch/lunch.module';
+import { InformationModule } from './information/information.module';
 import redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -15,6 +16,7 @@ import redisStore from 'cache-manager-redis-store';
     GrpcReflectionModule.register(grpcClientOptions),
     ScheduleModule,
     LunchModule,
+    InformationModule,
   ],
   controllers: [],
   providers: [],

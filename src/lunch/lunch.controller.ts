@@ -3,6 +3,8 @@ import { Observable } from 'rxjs';
 import {
   GetLunchOfDayRequest,
   GetLunchOfDayResponse,
+  GetLunchOfWeekRequest,
+  GetLunchOfWeekResponse,
   LunchServiceController,
   LunchServiceControllerMethods,
 } from 'src/grpc/neis.proto';
@@ -18,6 +20,18 @@ export class LunchController implements LunchServiceController {
   ): Promise<GetLunchOfDayResponse> {
     return {
       lunch: await this.lunchService.getDay(
+        request.schoolDistrictCode,
+        request.schoolCode,
+        request.date,
+      ),
+    };
+  }
+
+  async getLunchOfWeek(
+    request: GetLunchOfWeekRequest,
+  ): Promise<GetLunchOfWeekResponse> {
+    return {
+      lunches: await this.lunchService.getWeek(
         request.schoolDistrictCode,
         request.schoolCode,
         request.date,

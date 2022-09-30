@@ -21,3 +21,5 @@ export default class DateWrapper {
     };
   }
 }
+
+export * from './range';

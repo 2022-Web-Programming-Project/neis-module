@@ -18,7 +18,34 @@ export interface GetLunchOfDayRequest {
 }
 
 export interface GetLunchOfDayResponse {
-  lunch: string;
+  lunch: Lunch | undefined;
+}
+
+export interface GetLunchOfWeekRequest {
+  schoolDistrictCode: string;
+  schoolCode: string;
+  date: string;
+}
+
+export interface GetLunchOfWeekResponse {
+  lunches: Lunch[];
+}
+
+export interface Lunch {
+  atptOfcdcScCode: string;
+  atptOfcdcScNm: string;
+  sdSchulCode: string;
+  schulNm: string;
+  mmealScCode: string;
+  mmealScNm: string;
+  mlsvYmd: string;
+  mlsvFgr: string;
+  ddishNm: string;
+  orplcInfo: string;
+  calInfo: string;
+  ntrInfo: string;
+  mlsvFromYmd: string;
+  mlsvToYmd: string;
 }
 
 export const NEIS_PACKAGE_NAME = "neis";
@@ -50,17 +77,23 @@ export const SCHEDULE_SERVICE_NAME = "ScheduleService";
 
 export interface LunchServiceClient {
   getLunchOfDay(request: GetLunchOfDayRequest): Observable<GetLunchOfDayResponse>;
+
+  getLunchOfWeek(request: GetLunchOfWeekRequest): Observable<GetLunchOfWeekResponse>;
 }
 
 export interface LunchServiceController {
   getLunchOfDay(
     request: GetLunchOfDayRequest,
   ): Promise<GetLunchOfDayResponse> | Observable<GetLunchOfDayResponse> | GetLunchOfDayResponse;
+
+  getLunchOfWeek(
+    request: GetLunchOfWeekRequest,
+  ): Promise<GetLunchOfWeekResponse> | Observable<GetLunchOfWeekResponse> | GetLunchOfWeekResponse;
 }
 
 export function LunchServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getLunchOfDay"];
+    const grpcMethods: string[] = ["getLunchOfDay", "getLunchOfWeek"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("LunchService", method)(constructor.prototype[method], method, descriptor);

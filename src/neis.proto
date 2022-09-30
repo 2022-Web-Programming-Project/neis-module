@@ -16,6 +16,7 @@ message GetHelloResponse {
 
 service LunchService {
     rpc GetLunchOfDay(GetLunchOfDayRequest) returns (GetLunchOfDayResponse) {}
+    rpc GetLunchOfWeek(GetLunchOfWeekRequest) returns (GetLunchOfWeekResponse) {}
 }
 
 message GetLunchOfDayRequest {
@@ -25,5 +26,32 @@ message GetLunchOfDayRequest {
 }
 
 message GetLunchOfDayResponse {
-    string lunch = 1;
+    Lunch lunch = 1;
+}
+
+message GetLunchOfWeekRequest {
+    string school_district_code = 1;
+    string school_code = 2;
+    string date = 3;
+}
+
+message GetLunchOfWeekResponse {
+    repeated Lunch lunches = 1;
+}
+
+message Lunch {
+    string atpt_ofcdc_sc_code = 1;
+    string atpt_ofcdc_sc_nm = 2;
+    string sd_schul_code = 3;
+    string schul_nm = 4;
+    string mmeal_sc_code = 5;
+    string mmeal_sc_nm = 6;
+    string mlsv_ymd = 7;
+    string mlsv_fgr = 8;
+    string ddish_nm = 9;
+    string orplc_info = 10;
+    string cal_info = 11;
+    string ntr_info = 12;
+    string mlsv_from_ymd = 13;
+    string mlsv_to_ymd = 14;
 }
